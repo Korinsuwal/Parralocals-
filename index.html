@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Parralocals">
+  <meta name="description" content="Parralocals - Nike Run Club Style Athletic Interval Timer">
+  <link rel="manifest" href="manifest.json">
+  <title id="pageTitle">Parralocals • Athletic Interval Timer</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Nike Run Club (NRC) Signature Palette */
+      --nrc-volt: #CEFF00;             /* Iconic Nike Volt Green */
+      --nrc-volt-glow: rgba(206, 255, 0, 0.45);
+      --nrc-black: #000000;
+      --nrc-surface: #0E0F13;
+      --nrc-card: #15171E;
+      --nrc-card-hover: #1E202B;
+      --nrc-white: #FFFFFF;
+      --nrc-muted: #7E828E;
+      --nrc-border: rgba(255, 255, 255, 0.09);
+
+      /* Athletic Phase Colors */
+      --nrc-work: #CEFF00;             /* Volt Green */
+      --nrc-rest: #FF3B30;             /* Athletic Crimson */
+      --nrc-prep: #FF9500;             /* Bright Amber */
+      --nrc-cyan: #00F2FE;             /* Futsal Cyan */
+
+      --theme-active: var(--nrc-volt);
+      --theme-glow: var(--nrc-volt-glow);
+
+      /* Fonts */
+      --font-athletic: 'Anton', 'Impact', -apple-system, sans-serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      background-color: var(--nrc-black);
+      color: var(--nrc-white);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      width: 100%;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    /* Ambient Dynamic NRC Spotlight */
+    .nrc-glow-spot {
+      position: fixed;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      height: 400px;
+      background: radial-gradient(circle at 50% 35%, var(--theme-glow) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.38;
+      transition: background 0.4s ease;
+    }
+
+    /* Mobile Container Shell */
+    .nrc-shell {
+      position: relative;
+      z-index: 1;
+      max-width: 440px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: calc(var(--safe-top) + 12px) 18px calc(var(--safe-bottom) + 18px) 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    /* ====================================================================
+       TOP MINIMAL HEADER
+       ==================================================================== */
+    .nrc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 0 4px 0;
+      gap: 8px;
+    }
+
+    .nrc-brand-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .nrc-brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--nrc-volt);
+      color: var(--nrc-black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.15rem;
+      font-style: italic;
+      box-shadow: 0 0 14px var(--nrc-volt-glow);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .nrc-brand-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .nrc-brand-text {
+      font-family: var(--font-athletic);
+      font-size: 1.35rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-style: italic;
+    }
+
+    .nrc-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Prominent App Download Button */
+    .nrc-btn-download-app {
+      background: rgba(206, 255, 0, 0.12);
+      border: 1px solid var(--nrc-volt);
+      border-radius: 10px;
+      padding: 6px 10px;
+      color: var(--nrc-volt);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(206, 255, 0, 0.25);
+      transition: all 0.2s ease;
+      animation: nrc-pulse-download 2.2s infinite;
+      white-space: nowrap;
+    }
+
+    @keyframes nrc-pulse-download {
+      0%, 100% { box-shadow: 0 0 10px rgba(206, 255, 0, 0.2); }
+      50% { box-shadow: 0 0 18px var(--nrc-volt-glow); }
+    }
+
+    .nrc-btn-download-app:hover, .nrc-btn-download-app:active {
+      background: var(--nrc-volt);
+      color: var(--nrc-black);
+      box-shadow: 0 0 20px var(--nrc-volt-glow);
+      transform: scale(0.96);
+    }
+
+    .nrc-btn-edit-badge {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--nrc-border);
+      border-radius: 10px;
+      padding: 6px 10px;
+      color: var(--nrc-white);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nrc-btn-edit-badge:hover, .nrc-btn-edit-badge:active {
+      background: rgba(255, 255, 255, 0.18);
+      color: var(--nrc-white);
+    }
+
+    .nrc-btn-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--nrc-border);
+      color: var(--nrc-white);
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .nrc-btn-circle:active {
+      transform: scale(0.92);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .nrc-btn-circle.active {
+      background: var(--nrc-volt);
+      color: var(--nrc-black);
+      border-color: var(--nrc-volt);
+      box-shadow: 0 0 10px var(--nrc-volt-glow);
+    }
+
+    /* ====================================================================
+       SPORT NAVIGATION TABS (NRC Mode Selector)
+       ==================================================================== */
+    .nrc-mode-tabs {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      background: var(--nrc-surface);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--nrc-border);
+    }
+
+    .nrc-tab {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 4px;
+      color: var(--nrc-muted);
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .nrc-tab.active {
+      background: var(--nrc-card);
+      color: var(--nrc-volt);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* ====================================================================
+       HORIZONTAL PRESETS RAIL
+       ==================================================================== */
+    .nrc-presets-rail {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+      align-items: center;
+    }
+    .nrc-presets-rail::-webkit-scrollbar { display: none; }
+
+    .nrc-preset-card {
+      background: var(--nrc-surface);
+      border: 1px solid var(--nrc-border);
+      border-radius: 12px;
+      padding: 9px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 125px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .nrc-preset-card.active {
+      background: var(--nrc-card);
+      border-color: var(--theme-active);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 10px var(--theme-glow);
+    }
+
+    .nrc-preset-title {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--nrc-white);
+      white-space: nowrap;
+    }
+
+    .nrc-preset-meta {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--nrc-muted);
+    }
+
+    .nrc-add-routine-pill {
+      background: rgba(206, 255, 0, 0.08);
+      border: 1px dashed rgba(206, 255, 0, 0.35);
+      border-radius: 12px;
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 105px;
+      cursor: pointer;
+      flex-shrink: 0;
+      color: var(--nrc-volt);
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      transition: all 0.2s ease;
+    }
+
+    .nrc-add-routine-pill:hover, .nrc-add-routine-pill:active {
+      background: var(--nrc-volt);
+      color: var(--nrc-black);
+    }
+
+    /* ====================================================================
+       MASSIVE CENTRAL NRC ATHLETIC TIMER
+       ==================================================================== */
+    .nrc-timer-hero {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0;
+    }
+
+    /* Radial Progress Arc */
+    .nrc-arc-wrap {
+      position: relative;
+      width: 275px;
+      height: 275px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nrc-arc-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .nrc-arc-track {
+      fill: none;
+      stroke: #14161E;
+      stroke-width: 13;
+    }
+
+    .nrc-arc-fill {
+      fill: none;
+      stroke: var(--theme-active);
+      stroke-width: 13;
+      stroke-linecap: round;
+      stroke-dasharray: 766;
+      stroke-dashoffset: 0;
+      filter: drop-shadow(0 0 14px var(--theme-glow));
+      transition: stroke-dashoffset 0.15s linear, stroke 0.3s ease;
+    }
+
+    .nrc-arc-inner {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .nrc-phase-tag {
+      font-family: var(--font-athletic);
+      font-size: 1.25rem;
+      font-style: italic;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--theme-active);
+      margin-bottom: 2px;
+      text-shadow: 0 0 14px var(--theme-glow);
+    }
+
+    .nrc-digits {
+      font-family: var(--font-athletic);
+      font-size: 5.2rem;
+      line-height: 0.9;
+      font-style: italic;
+      letter-spacing: -1px;
+      color: var(--nrc-white);
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .nrc-sub-label {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--nrc-muted);
+      margin-top: 6px;
+    }
+
+    /* ====================================================================
+       NRC HUD METRICS TILES
+       ==================================================================== */
+    .nrc-stats-hud {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--nrc-surface);
+      border: 1px solid var(--nrc-border);
+      border-radius: 14px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .nrc-hud-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
+    }
+
+    .nrc-hud-col:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 15%;
+      height: 70%;
+      width: 1px;
+      background: var(--nrc-border);
+    }
+
+    .nrc-hud-title {
+      font-size: 0.6rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--nrc-muted);
+    }
+
+    .nrc-hud-val {
+      font-family: var(--font-athletic);
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--nrc-white);
+    }
+
+    /* Segmented Round Pips */
+    .nrc-pips-stream {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      max-width: 280px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+
+    .nrc-pip {
+      width: 10px;
+      height: 5px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.12);
+      transition: all 0.2s ease;
+    }
+
+    .nrc-pip.done {
+      background: var(--nrc-volt);
+      box-shadow: 0 0 6px var(--nrc-volt-glow);
+    }
+
+    .nrc-pip.active {
+      background: var(--theme-active);
+      transform: scaleY(1.4);
+      box-shadow: 0 0 8px var(--theme-glow);
+    }
+
+    /* ====================================================================
+       MASSIVE VOLT "START" CONTROL BUTTON
+       ==================================================================== */
+    .nrc-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 2px 0;
+    }
+
+    .nrc-btn-circle-large {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--nrc-surface);
+      border: 1px solid var(--nrc-border);
+      color: var(--nrc-white);
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nrc-btn-circle-large:active {
+      transform: scale(0.9);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .nrc-btn-start {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: var(--nrc-volt);
+      border: none;
+      color: var(--nrc-black);
+      font-family: var(--font-athletic);
+      font-size: 1.65rem;
+      font-style: italic;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 28px var(--nrc-volt-glow), 0 8px 24px rgba(0, 0, 0, 0.7);
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .nrc-btn-start:active {
+      transform: scale(0.93);
+    }
+
+    .nrc-btn-start.running {
+      background: var(--nrc-prep);
+      color: var(--nrc-black);
+      box-shadow: 0 0 28px rgba(255, 149, 0, 0.5);
+    }
+
+    .nrc-bell-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--nrc-muted);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      padding: 2px 0;
+    }
+
+    /* ====================================================================
+       WORKOUT MANAGER & MINUTES/SECONDS EDITOR SHEET
+       ==================================================================== */
+    .nrc-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .nrc-modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .nrc-sheet {
+      width: 100%;
+      max-width: 440px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: #111319;
+      border: 1px solid var(--nrc-border);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 16px 18px calc(var(--safe-bottom) + 24px) 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .nrc-modal-backdrop.active .nrc-sheet {
+      transform: translateY(0);
+    }
+
+    .nrc-grabber {
+      width: 38px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 auto;
+    }
+
+    .nrc-sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nrc-sheet-title {
+      font-family: var(--font-athletic);
+      font-size: 1.35rem;
+      font-style: italic;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Minutes & Seconds Dual Input Grid */
+    .nrc-time-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .nrc-time-unit {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .nrc-time-unit input {
+      padding-right: 42px;
+      font-family: var(--font-athletic);
+      font-size: 1.15rem;
+      font-style: italic;
+      letter-spacing: 0.5px;
+    }
+
+    .nrc-time-unit span {
+      position: absolute;
+      right: 12px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--nrc-muted);
+      letter-spacing: 0.5px;
+      pointer-events: none;
+    }
+
+    /* Workout Items List in Editor */
+    .nrc-manage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .nrc-workout-manage-item {
+      background: var(--nrc-surface);
+      border: 1px solid var(--nrc-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .nrc-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .nrc-item-title {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--nrc-white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nrc-item-details {
+      font-size: 0.65rem;
+      color: var(--nrc-muted);
+      font-weight: 600;
+    }
+
+    .nrc-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .nrc-btn-sm {
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--nrc-border);
+      color: var(--nrc-white);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nrc-btn-sm:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .nrc-btn-sm.danger {
+      color: var(--nrc-rest);
+    }
+
+    .nrc-btn-sm.danger:hover {
+      background: rgba(255, 59, 48, 0.15);
+      border-color: var(--nrc-rest);
+    }
+
+    /* Form Fields */
+    .nrc-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .nrc-form-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: var(--nrc-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nrc-input-field, .nrc-select-field {
+      width: 100%;
+      background: #181A22;
+      border: 1px solid var(--nrc-border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      color: var(--nrc-white);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .nrc-input-field:focus, .nrc-select-field:focus {
+      border-color: var(--nrc-volt);
+    }
+
+    .nrc-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .nrc-btn-volt {
+      background: var(--nrc-volt);
+      color: var(--nrc-black);
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: var(--font-athletic);
+      font-size: 1.15rem;
+      font-style: italic;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 0 16px var(--nrc-volt-glow);
+    }
+
+    /* Download Modal Cards */
+    .nrc-install-card {
+      background: var(--nrc-surface);
+      border: 1px solid var(--nrc-border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nrc-install-title {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--nrc-volt);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nrc-install-steps {
+      font-size: 0.76rem;
+      color: #C0C3CE;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="nrc-glow-spot" id="nrcGlowSpot"></div>
+
+  <div class="nrc-shell">
+    <!-- Top Minimal Header -->
+    <header class="nrc-header">
+      <div class="nrc-brand-pill" id="nrcBrandBtn" title="Customize Brand Name & Logo">
+        <div class="nrc-brand-icon">
+          <img id="nrcLogoImg" alt="Logo">
+          <span id="nrcLogoFallback">⚡</span>
+        </div>
+        <span class="nrc-brand-text" id="nrcBrandName">Parralocals</span>
+      </div>
+
+      <div class="nrc-header-actions">
+        <!-- Prominent Mobile Download / Install Button -->
+        <button class="nrc-btn-download-app" id="nrcInstallAppBtn" title="Install or Download App to Mobile">
+          <span>📲 DOWNLOAD APP</span>
+        </button>
+        <button class="nrc-btn-edit-badge" id="nrcOpenManagerBtn" title="Add, edit or remove workouts">
+          <span>✏️ MANAGE</span>
+        </button>
+        <button class="nrc-btn-circle" id="nrcSoundBtn" title="Sound On/Off">🔊</button>
+        <button class="nrc-btn-circle" id="nrcBellModalBtn" title="Bell Sound Settings">🔔</button>
+        <button class="nrc-btn-circle" id="nrcBrandModalBtn" title="Brand & Logo Settings">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Sport Mode Selector -->
+    <nav class="nrc-mode-tabs" id="nrcModeTabs">
+      <button class="nrc-tab active" data-sport="futsal">⚽ Futsal</button>
+      <button class="nrc-tab" data-sport="boxing">🥊 Boxing</button>
+      <button class="nrc-tab" data-sport="hiit">⚡ HIIT</button>
+      <button class="nrc-tab" data-sport="custom">⭐ Custom</button>
+    </nav>
+
+    <!-- Horizontal Preset Rail -->
+    <div class="nrc-presets-rail" id="nrcPresetsRail">
+      <!-- Populated dynamically with workout cards + [+ Add Routine] button -->
+    </div>
+
+    <!-- Massive Athletic Timer Stage -->
+    <main class="nrc-timer-hero">
+      <div class="nrc-arc-wrap">
+        <svg class="nrc-arc-svg" viewBox="0 0 275 275">
+          <circle class="nrc-arc-track" cx="137.5" cy="137.5" r="122"></circle>
+          <circle class="nrc-arc-fill" id="nrcArcFill" cx="137.5" cy="137.5" r="122"></circle>
+        </svg>
+
+        <div class="nrc-arc-inner">
+          <div class="nrc-phase-tag" id="nrcPhaseTag">READY</div>
+          <div class="nrc-digits" id="nrcTimerDigits">08:00</div>
+          <div class="nrc-sub-label" id="nrcSubLabel">⚽ 8 MINUTE FUTSAL</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Athletic HUD Grid -->
+    <section class="nrc-stats-hud">
+      <div class="nrc-hud-col">
+        <span class="nrc-hud-title">ROUND</span>
+        <span class="nrc-hud-val" id="nrcHudRound">1 / 2</span>
+      </div>
+      <div class="nrc-hud-col">
+        <span class="nrc-hud-title">PACE</span>
+        <span class="nrc-hud-val" id="nrcHudPace" style="color: var(--nrc-volt)">WORK</span>
+      </div>
+      <div class="nrc-hud-col">
+        <span class="nrc-hud-title">ELAPSED</span>
+        <span class="nrc-hud-val" id="nrcHudElapsed">00:00</span>
+      </div>
+      <div class="nrc-hud-col">
+        <span class="nrc-hud-title">REMAINING</span>
+        <span class="nrc-hud-val" id="nrcHudRemaining">18:00</span>
+      </div>
+    </section>
+
+    <!-- Segmented Round Pips -->
+    <div class="nrc-pips-stream" id="nrcPipsStream">
+      <!-- Generated dynamically -->
+    </div>
+
+    <!-- The Giant NRC Circular "START" Button -->
+    <div class="nrc-controls-row">
+      <button class="nrc-btn-circle-large" id="nrcBtnPrev" title="Previous Round">⏮</button>
+      <button class="nrc-btn-start" id="nrcBtnStart">START</button>
+      <button class="nrc-btn-circle-large" id="nrcBtnNext" title="Next Round">⏭</button>
+      <button class="nrc-btn-circle-large" id="nrcBtnReset" title="Reset">🔄</button>
+    </div>
+
+    <!-- Sound Status -->
+    <div class="nrc-bell-status" id="nrcBellStatus">
+      <span>🔔 3s Warning + Exact 0s Bell Active</span>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       APP DOWNLOAD & MOBILE INSTALL MODAL
+       ==================================================================== -->
+  <div class="nrc-modal-backdrop" id="nrcDownloadModal">
+    <div class="nrc-sheet">
+      <div class="nrc-grabber"></div>
+      <div class="nrc-sheet-header">
+        <h3 class="nrc-sheet-title">INSTALL ON MOBILE</h3>
+        <button class="nrc-btn-circle" id="nrcCloseDownloadBtn" style="width: 28px; height: 28px;">✕</button>
+      </div>
+
+      <!-- Android / Chrome 1-Tap Install Button -->
+      <button class="nrc-btn-volt" id="nrcTriggerNativeInstallBtn">📲 ADD TO HOME SCREEN (APP)</button>
+
+      <!-- iPhone & iPad Instructions Card -->
+      <div class="nrc-install-card">
+        <span class="nrc-install-title">🍏 iPhone & iPad (Safari):</span>
+        <div class="nrc-install-steps">
+          1. Tap the <strong>Share</strong> button (<strong>⎋</strong>) at the bottom of Safari.<br>
+          2. Scroll down and tap <strong>"Add to Home Screen"</strong> (<strong>⊞</strong>).<br>
+          3. Tap <strong>Add</strong> — the Parralocals app icon will appear directly on your home screen!
+        </div>
+      </div>
+
+      <!-- Android Instructions Card -->
+      <div class="nrc-install-card">
+        <span class="nrc-install-title">🤖 Android (Chrome & Edge):</span>
+        <div class="nrc-install-steps">
+          1. Tap <strong>"ADD TO HOME SCREEN"</strong> above or the <strong>3 dots (⋮)</strong> menu in Chrome.<br>
+          2. Tap <strong>"Install App"</strong> or <strong>"Add to Home screen"</strong>.<br>
+          3. Launches as a full-screen app with 100% offline access.
+        </div>
+      </div>
+
+      <!-- Direct Standalone HTML Download Button -->
+      <button type="button" class="nrc-btn-sm" style="justify-content: center; padding: 12px; font-weight: 800;" id="nrcDownloadOfflineFileBtn">
+        💾 Save Standalone App File (.html)
+      </button>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       WORKOUT MANAGER MODAL (WITH MINUTES & SECONDS EDITORS)
+       ==================================================================== -->
+  <div class="nrc-modal-backdrop" id="nrcManagerModal">
+    <div class="nrc-sheet">
+      <div class="nrc-grabber"></div>
+      <div class="nrc-sheet-header">
+        <h3 class="nrc-sheet-title">MANAGE WORKOUTS</h3>
+        <button class="nrc-btn-circle" id="nrcCloseManagerBtn" style="width: 28px; height: 28px;">✕</button>
+      </div>
+
+      <!-- Quick Action: Create New Workout Toggle -->
+      <button class="nrc-btn-volt" id="nrcShowCreateFormBtn">➕ ADD NEW WORKOUT</button>
+
+      <!-- Routine Editor Form with Minutes & Seconds -->
+      <form id="nrcWorkoutForm" style="display: none; flex-direction: column; gap: 12px; background: rgba(255,255,255,0.03); padding: 14px; border-radius: 14px; border: 1px solid var(--nrc-border);">
+        <input type="hidden" id="formWorkoutId">
+
+        <div class="nrc-form-group">
+          <label class="nrc-form-label">Workout / Routine Name</label>
+          <input type="text" class="nrc-input-field" id="formWorkoutName" required placeholder="e.g. ⚽ 8 MINUTE FUTSAL">
+        </div>
+
+        <div class="nrc-form-grid">
+          <div class="nrc-form-group">
+            <label class="nrc-form-label">Category</label>
+            <select class="nrc-select-field" id="formWorkoutCategory">
+              <option value="futsal">⚽ Futsal</option>
+              <option value="boxing">🥊 Boxing</option>
+              <option value="hiit">⚡ HIIT</option>
+              <option value="custom" selected>⭐ Custom</option>
+            </select>
+          </div>
+          <div class="nrc-form-group">
+            <label class="nrc-form-label">Sound Theme</label>
+            <select class="nrc-select-field" id="formWorkoutTheme">
+              <option value="whistle">⚽ Referee Whistle</option>
+              <option value="boxing" selected>🥊 Boxing Bell</option>
+              <option value="gong">🧘 Acoustic Gong</option>
+              <option value="beep">⚡ Digital Beep</option>
+              <option value="buzzer">📢 Court Buzzer</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Work Time (Minutes & Seconds) -->
+        <div class="nrc-form-group">
+          <label class="nrc-form-label">Work Time (Minutes & Seconds)</label>
+          <div class="nrc-time-split">
+            <div class="nrc-time-unit">
+              <input type="number" class="nrc-input-field" id="formWorkMin" min="0" max="180" value="8" required>
+              <span>MIN</span>
+            </div>
+            <div class="nrc-time-unit">
+              <input type="number" class="nrc-input-field" id="formWorkSec" min="0" max="59" value="0" required>
+              <span>SEC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rest Time (Minutes & Seconds) -->
+        <div class="nrc-form-group">
+          <label class="nrc-form-label">Rest Time (Minutes & Seconds)</label>
+          <div class="nrc-time-split">
+            <div class="nrc-time-unit">
+              <input type="number" class="nrc-input-field" id="formRestMin" min="0" max="60" value="1" required>
+              <span>MIN</span>
+            </div>
+            <div class="nrc-time-unit">
+              <input type="number" class="nrc-input-field" id="formRestSec" min="0" max="59" value="0" required>
+              <span>SEC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prep Time (Minutes & Seconds) & Total Rounds -->
+        <div class="nrc-form-grid">
+          <div class="nrc-form-group">
+            <label class="nrc-form-label">Prep Countdown</label>
+            <div class="nrc-time-split">
+              <div class="nrc-time-unit">
+                <input type="number" class="nrc-input-field" id="formPrepMin" min="0" max="10" value="0" required>
+                <span>MIN</span>
+              </div>
+              <div class="nrc-time-unit">
+                <input type="number" class="nrc-input-field" id="formPrepSec" min="0" max="59" value="10" required>
+                <span>SEC</span>
+              </div>
+            </div>
+          </div>
+          <div class="nrc-form-group">
+            <label class="nrc-form-label">Total Rounds</label>
+            <input type="number" class="nrc-input-field" id="formWorkoutRounds" min="1" max="100" value="2" required style="font-family: var(--font-athletic); font-size: 1.15rem; font-style: italic;">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+          <button type="submit" class="nrc-btn-volt" style="flex: 1;" id="formSubmitBtn">SAVE WORKOUT</button>
+          <button type="button" class="nrc-btn-sm" id="formCancelBtn">CANCEL</button>
+        </div>
+      </form>
+
+      <!-- Category Filter Pills in Sheet -->
+      <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;">
+        <button class="nrc-btn-sm active" data-filter="all" id="filterAllBtn">All</button>
+        <button class="nrc-btn-sm" data-filter="futsal">⚽ Futsal</button>
+        <button class="nrc-btn-sm" data-filter="boxing">🥊 Boxing</button>
+        <button class="nrc-btn-sm" data-filter="hiit">⚡ HIIT</button>
+        <button class="nrc-btn-sm" data-filter="custom">⭐ Custom</button>
+      </div>
+
+      <!-- Existing Workouts List -->
+      <div class="nrc-manage-list" id="nrcManageList">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Factory Reset Button -->
+      <button type="button" class="nrc-btn-sm" style="align-self: center; color: var(--nrc-muted);" id="nrcResetDefaultsBtn">
+        🔄 Restore Factory Preset Workouts
+      </button>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       AUDIO & BELL SETTINGS MODAL
+       ==================================================================== -->
+  <div class="nrc-modal-backdrop" id="nrcBellModal">
+    <div class="nrc-sheet">
+      <div class="nrc-grabber"></div>
+      <div class="nrc-sheet-header">
+        <h3 class="nrc-sheet-title">BELL & SOUNDS</h3>
+        <button class="nrc-btn-circle" id="nrcCloseBellBtn" style="width: 28px; height: 28px;">✕</button>
+      </div>
+
+      <div class="nrc-form-group">
+        <label class="nrc-form-label">End Bell Tone</label>
+        <select class="nrc-select-field" id="nrcSoundThemeSelect">
+          <option value="boxing">🥊 Ringside Boxing Bell</option>
+          <option value="whistle">⚽ Referee Whistle</option>
+          <option value="gong">🧘 Acoustic Gong</option>
+          <option value="beep">⚡ Digital Beep</option>
+          <option value="buzzer">📢 Court Buzzer</option>
+          <option value="custom">📁 Custom Uploaded Audio File</option>
+        </select>
+      </div>
+
+      <div class="nrc-form-group">
+        <label class="nrc-form-label">Custom Audio File (.mp3, .wav, .m4a)</label>
+        <input type="file" id="nrcCustomAudioFile" accept="audio/*" style="display: none;">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="nrc-btn-volt" style="flex: 1; font-size: 0.85rem; padding: 8px;" id="nrcUploadAudioBtn">📁 Upload Audio</button>
+          <button type="button" class="nrc-btn-circle" id="nrcPreviewAudioBtn">▶</button>
+          <button type="button" class="nrc-btn-circle" style="color: var(--nrc-rest);" id="nrcClearAudioBtn">🗑️</button>
+        </div>
+        <span style="font-size: 0.68rem; color: var(--nrc-muted);" id="nrcCustomAudioLabel">No custom audio uploaded</span>
+      </div>
+
+      <button class="nrc-btn-volt" id="nrcTestBellBtn">🔔 Test Exact 0s Bell Tone</button>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       BRAND & LOGO MODAL
+       ==================================================================== -->
+  <div class="nrc-modal-backdrop" id="nrcBrandModal">
+    <div class="nrc-sheet">
+      <div class="nrc-grabber"></div>
+      <div class="nrc-sheet-header">
+        <h3 class="nrc-sheet-title">CLUB & BRAND</h3>
+        <button class="nrc-btn-circle" id="nrcCloseBrandBtn" style="width: 28px; height: 28px;">✕</button>
+      </div>
+
+      <div class="nrc-form-group">
+        <label class="nrc-form-label">Brand / Club Display Name</label>
+        <input type="text" class="nrc-input-field" id="nrcBrandNameInput" placeholder="e.g. Parralocals, Bondi Futsal, Boxing Club">
+      </div>
+
+      <div class="nrc-form-group">
+        <label class="nrc-form-label">Club Logo (PNG, JPG, SVG)</label>
+        <input type="file" id="nrcLogoFileInput" accept="image/*" style="display: none;">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="nrc-btn-volt" style="flex: 1; font-size: 0.85rem; padding: 8px;" id="nrcUploadLogoBtn">📁 Upload Logo</button>
+          <button type="button" class="nrc-btn-circle" style="color: var(--nrc-rest);" id="nrcRemoveLogoBtn">🗑️</button>
+        </div>
+      </div>
+
+      <button class="nrc-btn-volt" id="nrcSaveBrandBtn">Save Brand</button>
+    </div>
+  </div>
+
+  <script>
+    /* ====================================================================
+       ROUTINES STORE (8 Minute Default on Futsal, No Match 20 / Agility 45)
+       ==================================================================== */
+    const DEFAULT_WORKOUTS = [
+      // Futsal (8 Minute Default, Match 20 and Agility 45 removed)
+      { id: 'f_8min', name: '⚽ 8 MINUTE FUTSAL', category: 'futsal', work: 480, rest: 60, prep: 10, rounds: 2, theme: 'whistle' },
+      { id: 'f_sprint', name: '⚽ SPRINT BURST 30/30', category: 'futsal', work: 30, rest: 30, prep: 5, rounds: 8, theme: 'whistle' },
+      { id: 'f_ot', name: '⚽ EXTRA TIME 5M', category: 'futsal', work: 300, rest: 60, prep: 10, rounds: 2, theme: 'whistle' },
+
+      // Boxing
+      { id: 'b_12', name: '🥊 CHAMPIONSHIP 12R', category: 'boxing', work: 180, rest: 60, prep: 15, rounds: 12, theme: 'boxing' },
+      { id: 'b_5', name: '🥊 PRO SPARRING 5R', category: 'boxing', work: 180, rest: 60, prep: 15, rounds: 5, theme: 'boxing' },
+      { id: 'b_bag', name: '🥊 HEAVY BAG 2M', category: 'boxing', work: 120, rest: 30, prep: 10, rounds: 8, theme: 'boxing' },
+      { id: 'b_tabata', name: '🥊 FIGHT TABATA 20/10', category: 'boxing', work: 20, rest: 10, prep: 10, rounds: 8, theme: 'boxing' },
+
+      // HIIT
+      { id: 'h_tabata', name: '⚡ TABATA CLASSIC 20/10', category: 'hiit', work: 20, rest: 10, prep: 10, rounds: 8, theme: 'beep' },
+      { id: 'h_45_15', name: '⚡ HIGH-VOLTAGE 45/15', category: 'hiit', work: 45, rest: 15, prep: 10, rounds: 6, theme: 'beep' },
+      { id: 'h_30_30', name: '⚡ POWER CARDIO 30/30', category: 'hiit', work: 30, rest: 30, prep: 5, rounds: 10, theme: 'buzzer' },
+      { id: 'h_60_20', name: '⚡ MAX BURN 60/20', category: 'hiit', work: 60, rest: 20, prep: 10, rounds: 5, theme: 'gong' },
+
+      // Custom
+      { id: 'c_custom', name: '⭐ CUSTOM ROUTINE', category: 'custom', work: 45, rest: 15, prep: 10, rounds: 10, theme: 'boxing' }
+    ];
+
+    const STORAGE_KEY_WORKOUTS = 'parralocals_workouts_v6';
+
+    function loadAllWorkouts() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY_WORKOUTS);
+        if (data) return JSON.parse(data);
+      } catch (e) {}
+      return DEFAULT_WORKOUTS;
+    }
+
+    function saveAllWorkouts(list) {
+      localStorage.setItem(STORAGE_KEY_WORKOUTS, JSON.stringify(list));
+      renderPresetsRail(NRC.sport);
+      renderManageList();
+    }
+
+    function addOrUpdateWorkout(item) {
+      const list = loadAllWorkouts();
+      if (!item.id) {
+        item.id = 'w_' + Date.now();
+        list.unshift(item);
+      } else {
+        const idx = list.findIndex(w => w.id === item.id);
+        if (idx !== -1) list[idx] = { ...list[idx], ...item };
+        else list.unshift(item);
+      }
+      saveAllWorkouts(list);
+      return item;
+    }
+
+    function deleteWorkoutById(id) {
+      let list = loadAllWorkouts();
+      list = list.filter(w => w.id !== id);
+      saveAllWorkouts(list);
+    }
+
+    function formatMinSecBrief(totalSeconds) {
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
+      if (m > 0 && s > 0) return `${m}m ${s}s`;
+      if (m > 0) return `${m}m`;
+      return `${s}s`;
+    }
+
+    /* ====================================================================
+       AUTHENTIC AUDIO SYNTHESIZER (Guaranteed Gym Volume)
+       ==================================================================== */
+    class AudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.compressor = null;
+        this.muted = false;
+        this.theme = 'whistle';
+        this.customAudio = null;
+        this.customAudioName = '';
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+            this.compressor = this.ctx.createDynamicsCompressor();
+            this.compressor.threshold.setValueAtTime(-10, this.ctx.currentTime);
+            this.compressor.knee.setValueAtTime(6, this.ctx.currentTime);
+            this.compressor.ratio.setValueAtTime(14, this.ctx.currentTime);
+            this.compressor.attack.setValueAtTime(0.002, this.ctx.currentTime);
+            this.compressor.release.setValueAtTime(0.1, this.ctx.currentTime);
+
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
+
+            this.compressor.connect(this.masterGain);
+            this.masterGain.connect(this.ctx.destination);
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, duration, type = 'sine', vol = 0.8) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+        gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(this.compressor);
+        osc.start(this.ctx.currentTime);
+        osc.stop(this.ctx.currentTime + duration);
+      }
+
+      playBoxingBell(duration = 1.4) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const fundamental = 450;
+        const partials = [
+          { mult: 1.0, vol: 0.85, d: duration },
+          { mult: 2.76, vol: 0.65, d: duration * 0.8 },
+          { mult: 5.4, vol: 0.4, d: duration * 0.55 },
+          { mult: 8.9, vol: 0.3, d: duration * 0.35 }
+        ];
+
+        partials.forEach(p => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(fundamental * p.mult, this.ctx.currentTime);
+
+          gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(p.vol, this.ctx.currentTime + 0.005);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + p.d);
+
+          osc.connect(gain);
+          gain.connect(this.compressor);
+          osc.start(this.ctx.currentTime);
+          osc.stop(this.ctx.currentTime + p.d);
+        });
+      }
+
+      playRefereeWhistle(duration = 0.4) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        [2450, 2720].forEach(f => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime);
+
+          gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.65, this.ctx.currentTime + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(this.compressor);
+          osc.start(this.ctx.currentTime);
+          osc.stop(this.ctx.currentTime + duration);
+        });
+      }
+
+      playGong(duration = 2.0) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        [130, 260, 390, 520].forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime);
+
+          const decay = duration * (1 - idx * 0.15);
+          gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.7 / (idx + 1), this.ctx.currentTime + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + decay);
+
+          osc.connect(gain);
+          gain.connect(this.compressor);
+          osc.start(this.ctx.currentTime);
+          osc.stop(this.ctx.currentTime + decay);
+        });
+      }
+
+      playBuzzer(duration = 0.35) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+
+        gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.85, this.ctx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(this.compressor);
+        osc.start(this.ctx.currentTime);
+        osc.stop(this.ctx.currentTime + duration);
+      }
+
+      playWarningPip() {
+        if (this.muted) return;
+        this.playTone(950, 0.12, 'square', 0.6);
+        this.playTone(1900, 0.12, 'sine', 0.4);
+      }
+
+      playEndBell() {
+        if (this.muted) return;
+
+        if (this.theme === 'custom' && this.customAudio) {
+          try {
+            this.customAudio.currentTime = 0;
+            this.customAudio.play().catch(() => {});
+            return;
+          } catch(e) {}
+        }
+
+        if (this.theme === 'boxing') {
+          this.playBoxingBell(1.4);
+        } else if (this.theme === 'whistle') {
+          this.playRefereeWhistle(0.4);
+        } else if (this.theme === 'gong') {
+          this.playGong(2.0);
+        } else if (this.theme === 'buzzer') {
+          this.playBuzzer(0.35);
+        } else {
+          this.playTone(1100, 0.4, 'sine', 0.9);
+        }
+      }
+    }
+
+    const sound = new AudioEngine();
+
+    /* ====================================================================
+       TIMER ENGINE (Default: 8 Minute Futsal Timer)
+       ==================================================================== */
+    const NRC = {
+      activeId: 'f_8min',
+      routineName: '⚽ 8 MINUTE FUTSAL',
+      sport: 'futsal',
+      prep: 10,
+      work: 480, // 8 minutes = 480 seconds!
+      rest: 60,  // 1 minute rest
+      rounds: 2,
+
+      isRunning: false,
+      phase: 'READY', // 'PREP', 'WORK', 'REST', 'COMPLETE'
+      currentRound: 1,
+      timeLeft: 480,
+      totalElapsed: 0,
+      lastTickTime: 0,
+      timerHandle: null,
+      lastWarnedSec: -1
+    };
+
+    function calculateTotalWorkoutDuration() {
+      return (NRC.prep || 0) + ((NRC.work || 0) + (NRC.rest || 0)) * NRC.rounds;
+    }
+
+    function formatTime(s) {
+      s = Math.max(0, Math.floor(s));
+      const m = Math.floor(s / 60);
+      const rem = s % 60;
+      return `${String(m).padStart(2, '0')}:${String(rem).padStart(2, '0')}`;
+    }
+
+    function toggleTimer() {
+      sound.init(); // unlock audio on tap
+      if (NRC.isRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function startTimer() {
+      if (NRC.isRunning) return;
+
+      if (NRC.phase === 'READY' || NRC.phase === 'COMPLETE') {
+        NRC.currentRound = 1;
+        NRC.totalElapsed = 0;
+        if (NRC.prep > 0) {
+          NRC.phase = 'PREP';
+          NRC.timeLeft = NRC.prep;
+        } else {
+          NRC.phase = 'WORK';
+          NRC.timeLeft = NRC.work;
+        }
+      }
+
+      NRC.isRunning = true;
+      NRC.lastTickTime = performance.now();
+      NRC.lastWarnedSec = -1;
+
+      updateButtonState();
+      updatePhaseColors();
+
+      if (NRC.timerHandle) clearInterval(NRC.timerHandle);
+      NRC.timerHandle = setInterval(tick, 100);
+    }
+
+    function pauseTimer() {
+      NRC.isRunning = false;
+      if (NRC.timerHandle) clearInterval(NRC.timerHandle);
+      updateButtonState();
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      NRC.phase = 'READY';
+      NRC.currentRound = 1;
+      NRC.timeLeft = NRC.work;
+      NRC.totalElapsed = 0;
+      NRC.lastWarnedSec = -1;
+      updateUI();
+      updatePhaseColors();
+    }
+
+    function nextRound() {
+      if (NRC.currentRound < NRC.rounds) {
+        NRC.currentRound++;
+        NRC.phase = 'WORK';
+        NRC.timeLeft = NRC.work;
+        NRC.lastWarnedSec = -1;
+        updateUI();
+        updatePhaseColors();
+      } else {
+        completeTimer();
+      }
+    }
+
+    function prevRound() {
+      if (NRC.currentRound > 1) {
+        NRC.currentRound--;
+        NRC.phase = 'WORK';
+        NRC.timeLeft = NRC.work;
+        NRC.lastWarnedSec = -1;
+        updateUI();
+        updatePhaseColors();
+      }
+    }
+
+    function tick() {
+      const now = performance.now();
+      const deltaSec = (now - NRC.lastTickTime) / 1000;
+      NRC.lastTickTime = now;
+
+      NRC.timeLeft -= deltaSec;
+      NRC.totalElapsed += deltaSec;
+
+      const secFloor = Math.floor(NRC.timeLeft);
+
+      // 3-SECOND WARNING PIPS (3, 2, 1)
+      if (secFloor >= 1 && secFloor <= 3 && secFloor !== NRC.lastWarnedSec) {
+        NRC.lastWarnedSec = secFloor;
+        sound.playWarningPip();
+        flashNotice(`⚡ ${secFloor}s WARNING!`);
+      }
+
+      // EXACT 0s END BELL
+      if (NRC.timeLeft <= 0) {
+        NRC.timeLeft = 0;
+        sound.playEndBell();
+        flashNotice(`🔔 INTERVAL COMPLETE!`);
+
+        if (NRC.phase === 'PREP') {
+          NRC.phase = 'WORK';
+          NRC.timeLeft = NRC.work;
+          NRC.lastWarnedSec = -1;
+        } else if (NRC.phase === 'WORK') {
+          if (NRC.currentRound < NRC.rounds && NRC.rest > 0) {
+            NRC.phase = 'REST';
+            NRC.timeLeft = NRC.rest;
+            NRC.lastWarnedSec = -1;
+          } else if (NRC.currentRound < NRC.rounds) {
+            NRC.currentRound++;
+            NRC.phase = 'WORK';
+            NRC.timeLeft = NRC.work;
+            NRC.lastWarnedSec = -1;
+          } else {
+            completeTimer();
+            return;
+          }
+        } else if (NRC.phase === 'REST') {
+          NRC.currentRound++;
+          NRC.phase = 'WORK';
+          NRC.timeLeft = NRC.work;
+          NRC.lastWarnedSec = -1;
+        }
+
+        updatePhaseColors();
+      }
+
+      updateUI();
+    }
+
+    function completeTimer() {
+      pauseTimer();
+      NRC.phase = 'COMPLETE';
+      NRC.timeLeft = 0;
+      sound.playEndBell();
+      updateUI();
+      updatePhaseColors();
+    }
+
+    function flashNotice(msg) {
+      const el = document.getElementById('nrcBellStatus');
+      el.textContent = msg;
+      el.style.color = 'var(--nrc-volt)';
+      setTimeout(() => {
+        el.textContent = '🔔 3s Warning + Exact 0s Bell Active';
+        el.style.color = 'var(--nrc-muted)';
+      }, 900);
+    }
+
+    /* ====================================================================
+       UI RENDERING
+       ==================================================================== */
+    const nrcArcFill = document.getElementById('nrcArcFill');
+    const nrcTimerDigits = document.getElementById('nrcTimerDigits');
+    const nrcPhaseTag = document.getElementById('nrcPhaseTag');
+    const nrcSubLabel = document.getElementById('nrcSubLabel');
+    const nrcHudRound = document.getElementById('nrcHudRound');
+    const nrcHudPace = document.getElementById('nrcHudPace');
+    const nrcHudElapsed = document.getElementById('nrcHudElapsed');
+    const nrcHudRemaining = document.getElementById('nrcHudRemaining');
+    const nrcGlowSpot = document.getElementById('nrcGlowSpot');
+    const nrcBtnStart = document.getElementById('nrcBtnStart');
+    const nrcPipsStream = document.getElementById('nrcPipsStream');
+
+    function updateUI() {
+      const displaySec = Math.max(0, Math.ceil(NRC.timeLeft));
+      nrcTimerDigits.textContent = formatTime(displaySec);
+
+      nrcPhaseTag.textContent = NRC.phase;
+      nrcSubLabel.textContent = NRC.routineName;
+
+      nrcHudRound.textContent = `${NRC.currentRound} / ${NRC.rounds}`;
+      nrcHudPace.textContent = NRC.phase;
+      nrcHudElapsed.textContent = formatTime(NRC.totalElapsed);
+
+      const totalDur = calculateTotalWorkoutDuration();
+      const remainingTotal = Math.max(0, totalDur - NRC.totalElapsed);
+      nrcHudRemaining.textContent = formatTime(remainingTotal);
+
+      // Arc progress (Circumference = 2 * PI * 122 ≈ 766.55)
+      const curMax = NRC.phase === 'PREP' ? NRC.prep : (NRC.phase === 'REST' ? NRC.rest : NRC.work);
+      const circumference = 2 * Math.PI * 122;
+      const ratio = curMax > 0 ? Math.max(0, Math.min(1, NRC.timeLeft / curMax)) : 0;
+      nrcArcFill.style.strokeDashoffset = circumference * (1 - ratio);
+
+      renderPips();
+    }
+
+    function renderPips() {
+      nrcPipsStream.innerHTML = '';
+      for (let r = 1; r <= NRC.rounds; r++) {
+        const pip = document.createElement('div');
+        pip.className = 'nrc-pip';
+        if (r < NRC.currentRound) pip.classList.add('done');
+        else if (r === NRC.currentRound) pip.classList.add('active');
+        nrcPipsStream.appendChild(pip);
+      }
+    }
+
+    function updatePhaseColors() {
+      let color = 'var(--nrc-volt)';
+      let glow = 'var(--nrc-volt-glow)';
+
+      if (NRC.phase === 'WORK') {
+        color = 'var(--nrc-work)';
+        glow = 'var(--nrc-volt-glow)';
+      } else if (NRC.phase === 'REST') {
+        color = 'var(--nrc-rest)';
+        glow = 'rgba(255, 59, 48, 0.45)';
+      } else if (NRC.phase === 'PREP') {
+        color = 'var(--nrc-prep)';
+        glow = 'rgba(255, 149, 0, 0.45)';
+      } else if (NRC.phase === 'COMPLETE') {
+        color = 'var(--nrc-cyan)';
+        glow = 'rgba(0, 242, 254, 0.45)';
+      }
+
+      document.documentElement.style.setProperty('--theme-active', color);
+      document.documentElement.style.setProperty('--theme-glow', glow);
+      nrcArcFill.style.stroke = color;
+      nrcPhaseTag.style.color = color;
+      nrcHudPace.style.color = color;
+      nrcGlowSpot.style.background = `radial-gradient(circle at 50% 35%, ${glow} 0%, rgba(0, 0, 0, 0) 70%)`;
+    }
+
+    function updateButtonState() {
+      if (NRC.isRunning) {
+        nrcBtnStart.classList.add('running');
+        nrcBtnStart.textContent = 'PAUSE';
+      } else {
+        nrcBtnStart.classList.remove('running');
+        nrcBtnStart.textContent = NRC.phase === 'READY' ? 'START' : 'RESUME';
+      }
+    }
+
+    /* ====================================================================
+       PRESETS RAIL DISPLAY (DEFAULT: 8 MINUTE FUTSAL)
+       ==================================================================== */
+    function setSport(sportKey) {
+      NRC.sport = sportKey;
+      document.querySelectorAll('.nrc-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.sport === sportKey);
+      });
+
+      renderPresetsRail(sportKey);
+      const all = loadAllWorkouts();
+      const list = all.filter(w => (w.category || 'custom').toLowerCase() === sportKey.toLowerCase());
+      if (list.length > 0) applyPreset(list[0]);
+    }
+
+    function renderPresetsRail(sportKey) {
+      const rail = document.getElementById('nrcPresetsRail');
+      rail.innerHTML = '';
+      const all = loadAllWorkouts();
+      const list = all.filter(w => (w.category || 'custom').toLowerCase() === sportKey.toLowerCase());
+
+      list.forEach((p, idx) => {
+        const card = document.createElement('div');
+        card.className = `nrc-preset-card ${p.id === NRC.activeId ? 'active' : ''}`;
+        card.innerHTML = `
+          <div class="nrc-preset-title">${p.name}</div>
+          <div class="nrc-preset-meta">${p.rounds}R • ${formatMinSecBrief(p.work)} / ${formatMinSecBrief(p.rest)}</div>
+        `;
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.nrc-preset-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          applyPreset(p);
+        });
+        rail.appendChild(card);
+      });
+
+      // Quick Add Button Pill at end of rail
+      const addPill = document.createElement('div');
+      addPill.className = 'nrc-add-routine-pill';
+      addPill.innerHTML = `<span>➕ ADD</span>`;
+      addPill.addEventListener('click', () => openWorkoutEditor(null, sportKey));
+      rail.appendChild(addPill);
+    }
+
+    function applyPreset(p) {
+      NRC.activeId = p.id;
+      NRC.routineName = p.name;
+      NRC.work = parseInt(p.work, 10);
+      NRC.rest = parseInt(p.rest, 10);
+      NRC.prep = parseInt(p.prep, 10);
+      NRC.rounds = parseInt(p.rounds, 10);
+      if (p.theme) sound.theme = p.theme;
+      resetTimer();
+    }
+
+    /* ====================================================================
+       WORKOUT MANAGER WITH MINUTES & SECONDS EDITORS
+       ==================================================================== */
+    const managerModal = document.getElementById('nrcManagerModal');
+    const workoutForm = document.getElementById('nrcWorkoutForm');
+    let currentSheetFilter = 'all';
+
+    function openWorkoutManager() {
+      renderManageList();
+      workoutForm.style.display = 'none';
+      managerModal.classList.add('active');
+    }
+
+    function closeWorkoutManager() {
+      managerModal.classList.remove('active');
+    }
+
+    function renderManageList() {
+      const listContainer = document.getElementById('nrcManageList');
+      listContainer.innerHTML = '';
+
+      let list = loadAllWorkouts();
+      if (currentSheetFilter !== 'all') {
+        list = list.filter(w => (w.category || 'custom').toLowerCase() === currentSheetFilter.toLowerCase());
+      }
+
+      if (list.length === 0) {
+        listContainer.innerHTML = `
+          <div style="text-align: center; padding: 24px; color: var(--nrc-muted); font-size: 0.8rem;">
+            No workouts in this category. Tap "Add New Workout" above!
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach(w => {
+        const item = document.createElement('div');
+        item.className = 'nrc-workout-manage-item';
+        item.innerHTML = `
+          <div class="nrc-item-info">
+            <span class="nrc-item-title">${w.name}</span>
+            <span class="nrc-item-details">${(w.category || 'Sport').toUpperCase()} • ${w.rounds} RNDS • Work: ${formatMinSecBrief(w.work)} • Rest: ${formatMinSecBrief(w.rest)}</span>
+          </div>
+          <div class="nrc-item-actions">
+            <button class="nrc-btn-sm" data-action="load" title="Load this workout">▶ LOAD</button>
+            <button class="nrc-btn-sm" data-action="edit" title="Edit routine in minutes and seconds">✏️</button>
+            <button class="nrc-btn-sm danger" data-action="delete" title="Delete routine">🗑️</button>
+          </div>
+        `;
+
+        item.querySelector('[data-action="load"]').addEventListener('click', () => {
+          setSport(w.category || 'futsal');
+          applyPreset(w);
+          closeWorkoutManager();
+        });
+
+        item.querySelector('[data-action="edit"]').addEventListener('click', () => {
+          openWorkoutEditor(w);
+        });
+
+        item.querySelector('[data-action="delete"]').addEventListener('click', () => {
+          if (confirm(`Remove workout "${w.name}"?`)) {
+            deleteWorkoutById(w.id);
+          }
+        });
+
+        listContainer.appendChild(item);
+      });
+    }
+
+    function openWorkoutEditor(workout = null, defaultCategory = 'futsal') {
+      workoutForm.style.display = 'flex';
+      workoutForm.scrollIntoView({ behavior: 'smooth' });
+
+      if (workout) {
+        document.getElementById('formWorkoutId').value = workout.id;
+        document.getElementById('formWorkoutName').value = workout.name;
+        document.getElementById('formWorkoutCategory').value = workout.category || 'futsal';
+        document.getElementById('formWorkoutTheme').value = workout.theme || 'boxing';
+
+        // Split Work into Minutes and Seconds
+        const wSec = parseInt(workout.work, 10) || 0;
+        document.getElementById('formWorkMin').value = Math.floor(wSec / 60);
+        document.getElementById('formWorkSec').value = wSec % 60;
+
+        // Split Rest into Minutes and Seconds
+        const rSec = parseInt(workout.rest, 10) || 0;
+        document.getElementById('formRestMin').value = Math.floor(rSec / 60);
+        document.getElementById('formRestSec').value = rSec % 60;
+
+        // Split Prep into Minutes and Seconds
+        const pSec = parseInt(workout.prep, 10) || 0;
+        document.getElementById('formPrepMin').value = Math.floor(pSec / 60);
+        document.getElementById('formPrepSec').value = pSec % 60;
+
+        document.getElementById('formWorkoutRounds').value = workout.rounds || 2;
+        document.getElementById('formSubmitBtn').textContent = 'UPDATE WORKOUT';
+      } else {
+        document.getElementById('formWorkoutId').value = '';
+        document.getElementById('formWorkoutName').value = '';
+        document.getElementById('formWorkoutCategory').value = defaultCategory;
+        document.getElementById('formWorkoutTheme').value = 'whistle';
+
+        // Default: 8 Minutes Work, 1 Minute Rest
+        document.getElementById('formWorkMin').value = 8;
+        document.getElementById('formWorkSec').value = 0;
+        document.getElementById('formRestMin').value = 1;
+        document.getElementById('formRestSec').value = 0;
+        document.getElementById('formPrepMin').value = 0;
+        document.getElementById('formPrepSec').value = 10;
+        document.getElementById('formWorkoutRounds').value = 2;
+        document.getElementById('formSubmitBtn').textContent = 'SAVE WORKOUT';
+      }
+
+      managerModal.classList.add('active');
+    }
+
+    workoutForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('formWorkoutId').value;
+      const name = document.getElementById('formWorkoutName').value.trim();
+      const category = document.getElementById('formWorkoutCategory').value;
+      const theme = document.getElementById('formWorkoutTheme').value;
+
+      // Calculate total seconds from Minutes and Seconds inputs
+      const wMin = parseInt(document.getElementById('formWorkMin').value, 10) || 0;
+      const wSec = parseInt(document.getElementById('formWorkSec').value, 10) || 0;
+      const work = Math.max(5, (wMin * 60) + wSec);
+
+      const rMin = parseInt(document.getElementById('formRestMin').value, 10) || 0;
+      const rSec = parseInt(document.getElementById('formRestSec').value, 10) || 0;
+      const rest = Math.max(0, (rMin * 60) + rSec);
+
+      const pMin = parseInt(document.getElementById('formPrepMin').value, 10) || 0;
+      const pSec = parseInt(document.getElementById('formPrepSec').value, 10) || 0;
+      const prep = Math.max(0, (pMin * 60) + pSec);
+
+      const rounds = Math.max(1, parseInt(document.getElementById('formWorkoutRounds').value, 10) || 1);
+
+      const saved = addOrUpdateWorkout({
+        id: id || undefined,
+        name,
+        category,
+        theme,
+        work,
+        rest,
+        prep,
+        rounds
+      });
+
+      workoutForm.style.display = 'none';
+
+      // Load it immediately on the home screen
+      setSport(category);
+      applyPreset(saved);
+      closeWorkoutManager();
+    });
+
+    document.getElementById('formCancelBtn').addEventListener('click', () => {
+      workoutForm.style.display = 'none';
+    });
+
+    document.getElementById('nrcShowCreateFormBtn').addEventListener('click', () => {
+      openWorkoutEditor(null, NRC.sport);
+    });
+
+    document.getElementById('nrcOpenManagerBtn').addEventListener('click', openWorkoutManager);
+    document.getElementById('nrcCloseManagerBtn').addEventListener('click', closeWorkoutManager);
+
+    // Sheet Category Filter Buttons
+    document.querySelectorAll('[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSheetFilter = btn.dataset.filter;
+        renderManageList();
+      });
+    });
+
+    document.getElementById('nrcResetDefaultsBtn').addEventListener('click', () => {
+      if (confirm('Restore all factory default workouts (8 Minute Futsal, etc.)? Custom additions will be reset.')) {
+        saveAllWorkouts(DEFAULT_WORKOUTS);
+        setSport('futsal');
+      }
+    });
+
+    /* ====================================================================
+       APP DOWNLOAD & MOBILE INSTALLATION (PWA + NATIVE PROMPT)
+       ==================================================================== */
+    let deferredInstallPrompt = null;
+    const downloadModal = document.getElementById('nrcDownloadModal');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const btn = document.getElementById('nrcInstallAppBtn');
+      btn.classList.add('ready');
+      document.getElementById('nrcTriggerNativeInstallBtn').style.display = 'block';
+    });
+
+    document.getElementById('nrcInstallAppBtn').addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        try {
+          deferredInstallPrompt.prompt();
+          const { outcome } = await deferredInstallPrompt.userChoice;
+          if (outcome === 'accepted') {
+            deferredInstallPrompt = null;
+            return;
+          }
+        } catch (e) {}
+      }
+      // Open the helpful Mobile Installation Sheet
+      downloadModal.classList.add('active');
+    });
+
+    document.getElementById('nrcTriggerNativeInstallBtn').addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        try {
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          downloadModal.classList.remove('active');
+        } catch(e) {}
+      } else {
+        alert('To install on your phone:\n- On Safari (iPhone): Tap Share ⎋ -> "Add to Home Screen" ⊞\n- On Chrome (Android): Tap menu ⋮ -> "Install App"');
+      }
+    });
+
+    document.getElementById('nrcCloseDownloadBtn').addEventListener('click', () => {
+      downloadModal.classList.remove('active');
+    });
+
+    // Standalone HTML Offline File Download
+    document.getElementById('nrcDownloadOfflineFileBtn').addEventListener('click', () => {
+      const htmlContent = document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'parralocals-timer.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+      alert('Downloaded standalone "parralocals-timer.html" to your device! You can open and run it offline anytime.');
+    });
+
+    /* ====================================================================
+       BRAND & LOGO CUSTOMIZER
+       ==================================================================== */
+    const BRAND_STORAGE = 'parralocals_nrc_brand_v6';
+
+    function loadBrand() {
+      try {
+        const d = localStorage.getItem(BRAND_STORAGE);
+        if (d) return JSON.parse(d);
+      } catch (e) {}
+      return { name: 'Parralocals', logo: '' };
+    }
+
+    function saveBrand(b) {
+      localStorage.setItem(BRAND_STORAGE, JSON.stringify(b));
+      applyBrand(b);
+    }
+
+    function applyBrand(b) {
+      const name = b.name || 'Parralocals';
+      document.getElementById('nrcBrandName').textContent = name;
+      document.getElementById('nrcBrandNameInput').value = name;
+      document.title = `${name} • Athletic Interval Timer`;
+
+      const img = document.getElementById('nrcLogoImg');
+      const fallback = document.getElementById('nrcLogoFallback');
+      if (b.logo) {
+        img.src = b.logo;
+        img.style.display = 'block';
+        fallback.style.display = 'none';
+      } else {
+        img.style.display = 'none';
+        fallback.style.display = 'block';
+      }
+    }
+
+    let stagedLogo = '';
+    const brandModal = document.getElementById('nrcBrandModal');
+
+    document.getElementById('nrcBrandBtn').addEventListener('click', () => brandModal.classList.add('active'));
+    document.getElementById('nrcBrandModalBtn').addEventListener('click', () => brandModal.classList.add('active'));
+    document.getElementById('nrcCloseBrandBtn').addEventListener('click', () => brandModal.classList.remove('active'));
+
+    document.getElementById('nrcUploadLogoBtn').addEventListener('click', () => {
+      document.getElementById('nrcLogoFileInput').click();
+    });
+
+    document.getElementById('nrcLogoFileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => stagedLogo = ev.target.result;
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('nrcRemoveLogoBtn').addEventListener('click', () => stagedLogo = '');
+
+    document.getElementById('nrcSaveBrandBtn').addEventListener('click', () => {
+      const name = document.getElementById('nrcBrandNameInput').value.trim() || 'Parralocals';
+      saveBrand({ name, logo: stagedLogo });
+      brandModal.classList.remove('active');
+    });
+
+    /* ====================================================================
+       BELL & SOUND SETTINGS
+       ==================================================================== */
+    const bellModal = document.getElementById('nrcBellModal');
+
+    document.getElementById('nrcBellModalBtn').addEventListener('click', () => {
+      document.getElementById('nrcSoundThemeSelect').value = sound.theme;
+      bellModal.classList.add('active');
+    });
+
+    document.getElementById('nrcCloseBellBtn').addEventListener('click', () => bellModal.classList.remove('active'));
+
+    document.getElementById('nrcSoundThemeSelect').addEventListener('change', (e) => {
+      sound.theme = e.target.value;
+    });
+
+    document.getElementById('nrcSoundBtn').addEventListener('click', () => {
+      sound.muted = !sound.muted;
+      const btn = document.getElementById('nrcSoundBtn');
+      if (sound.muted) {
+        btn.textContent = '🔇';
+        btn.classList.remove('active');
+      } else {
+        btn.textContent = '🔊';
+        btn.classList.add('active');
+        sound.init();
+        sound.playTone(880, 0.15);
+      }
+    });
+
+    document.getElementById('nrcTestBellBtn').addEventListener('click', () => {
+      sound.init();
+      sound.playEndBell();
+    });
+
+    document.getElementById('nrcUploadAudioBtn').addEventListener('click', () => {
+      document.getElementById('nrcCustomAudioFile').click();
+    });
+
+    document.getElementById('nrcCustomAudioFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        sound.customAudio = new Audio(ev.target.result);
+        sound.customAudioName = file.name;
+        document.getElementById('nrcCustomAudioLabel').textContent = `Loaded: ${file.name}`;
+        sound.theme = 'custom';
+        document.getElementById('nrcSoundThemeSelect').value = 'custom';
+        sound.playEndBell();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('nrcPreviewAudioBtn').addEventListener('click', () => sound.playEndBell());
+
+    document.getElementById('nrcClearAudioBtn').addEventListener('click', () => {
+      sound.customAudio = null;
+      sound.customAudioName = '';
+      sound.theme = 'boxing';
+      document.getElementById('nrcSoundThemeSelect').value = 'boxing';
+      document.getElementById('nrcCustomAudioLabel').textContent = 'No custom audio uploaded';
+    });
+
+    /* ====================================================================
+       INITIALIZATION & CONTROLS
+       ==================================================================== */
+    document.getElementById('nrcBtnStart').addEventListener('click', toggleTimer);
+    document.getElementById('nrcBtnReset').addEventListener('click', resetTimer);
+    document.getElementById('nrcBtnNext').addEventListener('click', nextRound);
+    document.getElementById('nrcBtnPrev').addEventListener('click', prevRound);
+
+    document.getElementById('nrcModeTabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.nrc-tab');
+      if (tab) setSport(tab.dataset.sport);
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const b = loadBrand();
+      stagedLogo = b.logo || '';
+      applyBrand(b);
+
+      // Default to Futsal (8 Minute Timer)
+      setSport('futsal');
+      updateUI();
+      updatePhaseColors();
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+    });
+  </script>
+</body>
+</html>
